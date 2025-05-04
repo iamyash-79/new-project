@@ -5,11 +5,11 @@ import pandas as pd
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
-# Dummy user credentials (email:password)
+# Dummy user credentials (email: {password, name, mobile})
 USERS = {
-    "user1@example.co": "user1",
-    "user2@example.co": "user2",
-    "admin@example.co": "admin"
+    "user1@example.co": {"password": "user1", "name": "User One", "mobile": "1234567890"},
+    "user2@example.co": {"password": "user2", "name": "User Two", "mobile": "0987654321"},
+    "admin@example.co": {"password": "admin", "name": "Admin", "mobile": "0000000000"}
 }
 
 # Load model
@@ -25,12 +25,41 @@ def login():
     email = request.form.get('email')
     password = request.form.get('password')
 
-    if USERS.get(email) == password:
+    user = USERS.get(email)
+    if user and user['password'] == password:
         session['logged_in'] = True
         session['email'] = email
         return redirect(url_for('home'))
     else:
         return render_template('index.html', prediction_text="Invalid login. Try again.", session=session)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        mobile = request.form.get('mobile')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Validation
+        if email in USERS:
+            return render_template('register.html', message="Email already exists.")
+        if password != confirm_password:
+            return render_template('register.html', message="Passwords do not match.")
+        if not name or not mobile or not email or not password:
+            return render_template('register.html', message="Please fill in all required fields.")
+
+        # Store new user
+        USERS[email] = {
+            "password": password,
+            "name": name,
+            "mobile": mobile
+        }
+
+        return redirect(url_for('home'))
+
+    return render_template('register.html', message=None)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -64,4 +93,5 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
