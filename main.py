@@ -7,7 +7,9 @@ app.secret_key = 'your_secret_key_here'
 
 # Dummy user credentials (email:password)
 USERS = {
-    "user@example.com": "password123"
+    "user1@example.co": "user1",
+    "user2@example.co": "user2",
+    "admin@example.co": "admin"
 }
 
 # Load model
