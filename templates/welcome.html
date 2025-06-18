@@ -1,134 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Welcome</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome Animation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(135deg, #000000, #1a1a1a);
-      color: #00ffcc;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', sans-serif;
-      flex-direction: column;
+    html, body {
+      width: 100%; height: 100%;
       overflow: hidden;
-      position: relative;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      color: #00ffcc;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .starfield {
+      position: absolute;
+      top: 0; left: 0;
+      width: 200%; height: 200%;
+      background: radial-gradient(#00ffe0 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: translate(-50%, -50%) scale(2);
+      animation: star-move 60s linear infinite;
+      z-index: 0;
+      opacity: 0.06;
+    }
+
+    @keyframes star-move {
+      from { transform: translate(-50%, -50%) translate(0,0) scale(2); }
+      to { transform: translate(-60%, -40%) translate(-100px,100px) scale(2); }
     }
 
     .welcome-container {
+      position: absolute;
+      top: 35%;
+      width: 100%;
       text-align: center;
+      z-index: 5;
     }
 
     .line {
       font-size: 2rem;
-      margin: 20px 0;
+      margin: 10px 0;
+      display: inline-block;
       white-space: nowrap;
       overflow: hidden;
       border-right: 3px solid #00ffcc;
-      animation: blink 0.7s step-end infinite;
-      width: fit-content;
+      animation: blink-caret 0.7s step-end infinite;
+      color: #00fff7;
     }
 
-    @keyframes blink {
+    @keyframes blink-caret {
       50% { border-color: transparent; }
     }
 
-    .car-logo {
-      width: 100px;
-      margin-bottom: 20px;
-      animation: drive 2s linear infinite;
+    .line.off {
+      color: #00ffd9;
+      text-shadow: 0 0 20px #00ffcc;
+      animation: glow 3s ease-in-out infinite;
+      animation-delay: 1s;
     }
 
-    @keyframes drive {
-      0% { transform: translateX(-10px); }
-      50% { transform: translateX(10px); }
-      100% { transform: translateX(-10px); }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00ffcc; color: #00e6b8; }
+      50% { text-shadow: 0 0 40px #00ffcc; color: #00ffcc; }
+      to { text-shadow: 0 0 10px #00ffcc; color: #00e6b8; }
     }
 
-    .skip-btn {
+    .crack-container {
       position: absolute;
-      bottom: 30px;
-      background-color: #00ffcc;
-      color: #000;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 15;
+      transition: opacity 0.4s ease-in-out;
     }
 
-    .skip-btn:hover {
-      background-color: #00ddb3;
+    .crack-svg {
+      width: 120%; height: 120%;
+      transform: translate(-10%, -10%);
+    }
+
+    .shard {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
+      border: 1px solid #00ffcc33;
+      opacity: 0;
+      z-index: 14;
+      box-shadow: 0 0 15px #00ffcc44;
+    }
+
+    .shard.animate {
+      animation: shard-fall 1.6s ease-out forwards;
+    }
+
+    @keyframes shard-fall {
+      0% {
+        transform: translate(0,0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(0,1000px) rotate(60deg) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    .progress {
+      position: absolute;
+      bottom: 10%;
+      left: 15%;
+      width: 70%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      opacity: 0;
+      z-index: 6;
+      box-shadow: 0 0 10px #00ffcc55;
+    }
+
+    .progress-bar {
+      width: 0%; height: 100%;
+      background: linear-gradient(to right, #00ffcc, #00bfa5);
+      transition: width 2s ease-in-out;
+    }
+
+    .fadeout {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      opacity: 0;
+      z-index: 99;
+      pointer-events: none;
+      transition: opacity 1.5s ease;
+    }
+
+    .fadeout.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-
-  <!-- ✅ Animated Car Logo (Linked directly) -->
-  <img class="car-logo" src="https://cdn-icons-png.flaticon.com/512/744/744465.png" alt="Car Logo">
-
+  <div class="fadeout" id="fadeout"></div>
+  <div class="starfield"></div>
   <div class="welcome-container">
     <div class="line" id="line1"></div>
     <div class="line" id="line2"></div>
   </div>
+  <div class="crack-container" id="crackContainer">
+    <svg class="crack-svg" viewBox="0 0 800 800">
+      <path d="M400,0 L410,150 L390,250 L445,280 L400,350 L370,280 L310,320 L330,240 L280,190 L330,150 Z"
+            fill="transparent" stroke="#00ffcc88" stroke-width="2"/>
+      <path d="M200,600 L260,520 L240,430 L300,380" fill="transparent" stroke="#00ffcc55" stroke-width="1"/>
+      <path d="M700,400 L620,350 L640,280" fill="transparent" stroke="#00ffcc55" stroke-width="1"/>
+      <path d="M400,400 L480,370 L470,310" fill="transparent" stroke="#00ffcc55" stroke-width="1"/>
+    </svg>
+  </div>
+  <div class="shard" id="shard1" style="width:120px;height:120px;top:30%;left:25%;"></div>
+  <div class="shard" id="shard2" style="width:180px;height:140px;top:35%;left:55%;"></div>
+  <div class="shard" id="shard3" style="width:90px;height:90px;top:40%;left:40%;"></div>
+  <div class="shard" id="shard4" style="width:150px;height:150px;top:20%;left:60%;"></div>
+  <div class="shard" id="shard5" style="width:100px;height:130px;top:50%;left:30%;"></div>
+  <div class="progress" id="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
-  <!-- ✅ Skip Button -->
-  <button class="skip-btn" onclick="skipNow()">Skip</button>
-
-  <!-- ✅ Typing Sound -->
-  <audio id="typeSound" preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_69b88ccdf3.mp3?filename=typewriter-key-1-14662.mp3" type="audio/mpeg">
+  <audio id="typeSound">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_69b88ccdf3.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="crackSound">
+    <source src="https://cdn.pixabay.com/download/audio/2021/09/08/audio_abc123.mp3" type="audio/mpeg">
   </audio>
 
   <script>
     const line1Text = "Welcome to Our Project";
-    const line2Text = "Title:- Fuel Efficiency Prediction";
-    const line1El = document.getElementById('line1');
-    const line2El = document.getElementById('line2');
-    const sound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_69b88ccdf3.mp3?filename=typewriter-key-1-14662.mp3");
+    const line2Text = "Title: Fuel Efficiency Prediction";
+    const lineEls = [document.getElementById('line1'), document.getElementById('line2')];
+    const typeSound = document.getElementById('typeSound');
+    const crackSound = document.getElementById('crackSound');
+    const crackContainer = document.getElementById('crackContainer');
+    const shardEls = [
+      document.getElementById('shard1'),
+      document.getElementById('shard2'),
+      document.getElementById('shard3'),
+      document.getElementById('shard4'),
+      document.getElementById('shard5'),
+    ];
+    const progress = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
 
-    function typeLine(el, text, callback) {
+    function typeLine(el, text, cb) {
       let i = 0;
       const interval = setInterval(() => {
-        if (i < text.length) {
-          el.textContent += text[i++];
-          sound.currentTime = 0;
-          sound.play().catch(() => {}); // suppress autoplay errors
-        } else {
+        el.textContent += text[i++];
+        typeSound.currentTime = 0;
+        typeSound.play();
+        if (i >= text.length) {
           clearInterval(interval);
-          if (callback) callback();
+          el.classList.remove('line');
+          el.classList.add('off');
+          if (cb) setTimeout(cb, 500);
         }
       }, 80);
     }
 
-    // Start typing animation
-    typeLine(line1El, line1Text, () => {
-      setTimeout(() => {
-        typeLine(line2El, line2Text);
-      }, 400);
-    });
-
-    // Auto redirect after 6.5s
-    const redirectTimer = setTimeout(() => {
-      window.location.href = "/index";
-    }, 6500);
-
-    function skipNow() {
-      clearTimeout(redirectTimer);
-      window.location.href = "/index";
+    function startTyping() {
+      typeLine(lineEls[0], line1Text, () => {
+        typeLine(lineEls[1], line2Text, onTypingComplete);
+      });
     }
 
-    // Fix autoplay restriction in browsers
-    document.body.addEventListener('click', () => {
-      sound.play().catch(() => {});
-    }, { once: true });
-  </script>
+    function onTypingComplete() {
+      crackContainer.style.opacity = 1;
+      crackSound.play();
+      shardEls.forEach((sh, idx) => {
+        setTimeout(() => {
+          sh.style.opacity = 1;
+          sh.classList.add('animate');
+        }, idx * 150);
+      });
+      progress.style.opacity = 1;
+      setTimeout(() => { progressBar.style.width = '100%'; }, 100);
+      setTimeout(() => {
+        document.getElementById('fadeout').classList.add('show');
+      }, 2500);
+      setTimeout(() => {
+        window.location.href = "/index";
+      }, 4000);
+    }
 
+    window.addEventListener('load', startTyping);
+  </script>
 </body>
 </html>

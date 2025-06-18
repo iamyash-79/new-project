@@ -3,222 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Slide to Redirect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
+  <title>Tap to Fuel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet"/>
   <style>
     body {
       margin: 0;
+      padding: 0;
       font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #001f1f, #000);
       overflow: hidden;
-      background: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-      background-size: cover;
+      color: #fff;
     }
 
-    .clouds {
+    .background {
       position: absolute;
-      width: 200%;
-      height: 100%;
-      background: url('https://i.imgur.com/5r2hO9L.png') repeat-x;
-      background-size: contain;
-      animation: moveClouds 60s linear infinite;
+      width: 100%; height: 100%;
+      background: url('https://i.imgur.com/GzPjzTS.png') center/cover no-repeat;
+      filter: brightness(0.25);
+      z-index: -2;
+    }
+
+    .starfield {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(#00ffe0 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: moveStars 60s linear infinite;
       z-index: -1;
-      opacity: 0.4;
+      opacity: 0.08;
     }
 
-    @keyframes moveClouds {
-      from { background-position: 0 0; }
-      to { background-position: -100% 0; }
+    @keyframes moveStars {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
     }
 
-    .slider-container {
-      position: relative;
-      margin: auto;
-      margin-top: 40vh;
-      width: 320px;
-      height: 60px;
-      background-color: #ffffffcc;
-      border-radius: 50px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-      z-index: 2;
-    }
-
-    .slider-track {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-color: #f0f0f0;
-      border-radius: 50px;
-    }
-
-    .slider-car {
-      width: 60px;
-      height: 60px;
-      background-color: #28a745;
-      position: absolute;
-      top: 0;
-      left: 0;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 28px;
-      color: white;
-      cursor: pointer;
-      z-index: 1;
-      transition: transform 0.1s ease;
-    }
-
-    .slider-text {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      line-height: 60px;
-      color: #555;
-      font-size: 16px;
-      pointer-events: none;
-    }
-
-    .spinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 50px;
-      animation: bounce 0.5s infinite alternate;
-      z-index: 999;
-    }
-
-    @keyframes bounce {
-      from { transform: translate(-50%, -50%) translateY(0); }
-      to { transform: translate(-50%, -50%) translateY(-10px); }
-    }
-
-    .fill-fields {
-      position: absolute;
-      left: calc(50% - 180px);
-      top: calc(40vh - 120px);
-      width: 240px;
-      height: auto;
-      background: rgba(255,255,255,0.85);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    .container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: 2;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      position: relative;
     }
 
-    .fill-fields.show {
-      opacity: 1;
+    .fuel-icon {
+      font-size: 90px;
+      margin-bottom: 30px;
+      animation: pulse 1.2s infinite;
+      cursor: pointer;
+      color: #00ffcc;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 0 10px #00ffcc);
     }
 
-    .fill-fields input {
-      padding: 8px 12px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 14px;
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
+
+    .progress-container {
+      width: 300px;
+      height: 22px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 20px;
+      box-shadow: 0 0 15px #00ffcc66, 0 0 5px #00bfa566;
+      border: 1px solid #00ffcc44;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #00ffcc, #00bfa5);
+      transition: width 0.2s ease;
+    }
+
+    .status-text {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #aafaf0;
+      text-shadow: 0 0 5px #00ffcc99;
     }
 
     .overlay {
-      display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.8);
-      z-index: 999;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 2s ease;
+      z-index: 99;
+    }
+
+    .overlay.show {
+      opacity: 1;
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 40px;
+      font-size: 14px;
+      color: #00ffcc88;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #00ffcc44, transparent);
+      border-radius: 50%;
+      z-index: 0;
+      animation: moveGlow 6s infinite linear;
+    }
+
+    @keyframes moveGlow {
+      0% { transform: translate(20%, 20%); }
+      50% { transform: translate(-20%, -10%); }
+      100% { transform: translate(20%, 20%); }
     }
   </style>
 </head>
 <body>
+  <div class="background"></div>
+  <div class="starfield"></div>
+  <div class="glow"></div>
+  <div class="container">
+    <div class="fuel-icon" id="fuelIcon">⛽</div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status-text" id="statusText">Tap to fuel up</div>
+    <div class="hint">Hint: Tap ⛽ to begin fueling</div>
+  </div>
+  <div class="overlay" id="overlay"></div>
 
-<div class="clouds"></div>
+  <audio id="fuelSound" src="https://cdn.pixabay.com/download/audio/2022/02/03/audio_b9b589e0a6.mp3" preload="auto"></audio>
+  <audio id="engineSound" src="https://cdn.pixabay.com/download/audio/2021/09/08/audio_71104bb109.mp3" preload="auto"></audio>
 
-<div class="fill-fields" id="fieldsBox">
-  <input type="text" placeholder="Engine Size" disabled>
-  <input type="text" placeholder="Cylinders" disabled>
-  <input type="text" placeholder="Transmission" disabled>
-  <input type="text" placeholder="Fuel Type" disabled>
-</div>
+  <script>
+    const fuelIcon = document.getElementById('fuelIcon');
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('statusText');
+    const overlay = document.getElementById('overlay');
+    const fuelSound = document.getElementById('fuelSound');
+    const engineSound = document.getElementById('engineSound');
 
-<div class="slider-container" id="slider">
-  <div class="slider-track"></div>
-  <div class="slider-car" id="car">🚘</div>
-  <div class="slider-text">Slide to Start</div>
-</div>
+    let fueling = false;
 
-<div class="overlay" id="overlay"></div>
-<div class="spinner" id="spinner">🏎️</div>
+    fuelIcon.addEventListener('click', () => {
+      if (fueling) return;
+      fueling = true;
+      fuelSound.play();
+      statusText.textContent = "Fueling...";
 
-<audio id="slideSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
-
-<script>
-  const car = document.getElementById('car');
-  const slider = document.getElementById('slider');
-  const spinner = document.getElementById('spinner');
-  const overlay = document.getElementById('overlay');
-  const fieldsBox = document.getElementById('fieldsBox');
-  const slideSound = document.getElementById('slideSound');
-
-  let isDragging = false;
-  let startX;
-  let currentX = 0;
-
-  car.addEventListener('mousedown', startDrag);
-  car.addEventListener('touchstart', startDrag);
-
-  document.addEventListener('mousemove', drag);
-  document.addEventListener('touchmove', drag);
-
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
-
-  function startDrag(e) {
-    isDragging = true;
-    startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-    fieldsBox.classList.add('show');
-  }
-
-  function drag(e) {
-    if (!isDragging) return;
-    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-    const dx = clientX - startX;
-    const containerWidth = slider.offsetWidth - car.offsetWidth;
-    currentX = Math.min(Math.max(0, dx), containerWidth);
-    car.style.left = `${currentX}px`;
-  }
-
-  function endDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-
-    const containerWidth = slider.offsetWidth - car.offsetWidth;
-
-    if (currentX >= containerWidth - 10) {
-      slideSound.play();
-      if (navigator.vibrate) navigator.vibrate(100);
-
-      // Show car animation and overlay
-      overlay.style.display = 'block';
-      spinner.style.display = 'block';
-
-      setTimeout(() => {
-        window.location.href = "/welcome";
-      }, 3000); // Simulate 3 second loading
-    } else {
-      car.style.left = `0px`;
-      currentX = 0;
-      fieldsBox.classList.remove('show');
-    }
-  }
-</script>
-
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 2;
+        progressBar.style.width = `${progress}%`;
+        if (progress >= 100) {
+          clearInterval(interval);
+          fuelSound.pause();
+          statusText.textContent = "Engine Ready!";
+          engineSound.play();
+          overlay.classList.add('show');
+          setTimeout(() => {
+            window.location.href = "/welcome";
+          }, 2200);
+        }
+      }, 50);
+    });
+  </script>
 </body>
 </html>
