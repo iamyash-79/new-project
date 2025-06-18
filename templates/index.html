@@ -6,40 +6,58 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 50px;
-            background-image: url("../static/image.jpg");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .form-container {
-            max-width: 500px;
+            max-width: 650px;
             width: 90%;
-            margin: auto;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 60px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .form-container h2 {
             text-align: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #2c5364;
         }
 
-        .form-container input, .form-container select {
+        .form-container label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #333;
+        }
+
+        .form-container select,
+        .form-container input[type="submit"] {
             width: 100%;
             padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            font-size: 16px;
         }
 
         .form-container input[type="submit"] {
             background-color: #007BFF;
             color: white;
-            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
         }
 
         .form-container input[type="submit"]:hover {
@@ -47,93 +65,103 @@
         }
 
         .result {
-            font-size: 1.5em;
-            color: #000;
+            font-size: 1.4em;
+            color: #2c3e50;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
+            display: none;
         }
 
-        .logout-btn {
+        .car-animation {
+            display: none;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 30px;
         }
 
-        .logout-btn a {
-            color: red;
-            text-decoration: none;
+        .car-animation img {
+            width: 120px;
+            animation: drive 2s linear infinite;
         }
 
-        .register-link {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .register-link a {
-            color: #007BFF;
-            text-decoration: none;
+        @keyframes drive {
+            0% { transform: translateX(-50px); }
+            100% { transform: translateX(50px); }
         }
     </style>
 </head>
 <body>
     <div class="form-container">
-        {% if not session.get('logged_in') %}
-            <h2>Login</h2>
-            <form action="/login" method="post">
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <input type="submit" value="Login">
-            </form>
-            <div class="register-link">
-                <a href="/register">Create</a> <span>New Account</span>
-            </div>
-        {% else %}
-            <h2>Fuel Efficiency Prediction</h2>
-            <form action="/predict" method="post">
-                <label for="engine_size">Engine Size (L):</label>
-                <select name="engine_size" required>
-                    <option value="" disabled selected>Select Engine Size</option>
-                    {% for size in [1.2,1.3,1.4,1.5,1.6,1.8,2.0,2.3,2.4,2.5,2.7,2.8,2.9,3.0,3.2,3.3,3.4,3.5,3.6,3.7,3.8,4.0,4.4,4.6,5.0,5.2,5.3,5.6,5.7,6.0,6.2,6.4,6.5,6.6,6.7,8.0] %}
-                    <option value="{{ size }}">{{ size }}</option>
-                    {% endfor %}
-                </select>
+        <h2>Fuel Efficiency Prediction</h2>
+        <form id="predict-form" action="/predict" method="post">
+            <label for="engine_size">Engine Size (L):</label>
+            <select name="engine_size" required>
+                <option value="" disabled selected>Select Engine Size</option>
+                {% for size in [1.2,1.3,1.4,1.5,1.6,1.8,2.0,2.3,2.4,2.5,2.7,2.8,2.9,3.0,3.2,3.3,3.4,3.5,3.6,3.7,3.8,4.0,4.4,4.6,5.0,5.2,5.3,5.6,5.7,6.0,6.2,6.4,6.5,6.6,6.7,8.0] %}
+                <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
+            </select>
 
-                <label for="cylinders">Cylinders:</label>
-                <select name="cylinders" required>
-                    <option value="" disabled selected>Select Cylinders</option>
-                    {% for cyl in [3,4,5,6,8,10,12,16] %}
-                    <option value="{{ cyl }}">{{ cyl }}</option>
-                    {% endfor %}
-                </select>
+            <label for="cylinders">Cylinders:</label>
+            <select name="cylinders" required>
+                <option value="" disabled selected>Select Cylinders</option>
+                {% for cyl in [3,4,5,6,8,10,12,16] %}
+                <option value="{{ cyl }}">{{ cyl }}</option>
+                {% endfor %}
+            </select>
 
-                <label for="transmission">Transmission:</label>
-                <select name="transmission" required>
-                    <option value="" disabled selected>Select Transmission</option>
-                    {% for trans in ['A6','A7','A8','A9','A10','AM6','AM7','AM8','AS5','AS6','AS7','AS8','AS9','AS10','AV','AV1','AV10','AV6','AV7','AV8','AV10','M5','M6','M7'] %}
-                    <option value="{{ trans }}">{{ trans }}</option>
-                    {% endfor %}
-                </select>
+            <label for="transmission">Transmission:</label>
+            <select name="transmission" required>
+                <option value="" disabled selected>Select Transmission</option>
+                {% for trans in ['A6','A7','A8','A9','A10','AM6','AM7','AM8','AS5','AS6','AS7','AS8','AS9','AS10','AV','AV1','AV10','AV6','AV7','AV8','AV10','M5','M6','M7'] %}
+                <option value="{{ trans }}">{{ trans }}</option>
+                {% endfor %}
+            </select>
 
-                <label for="fuel_type">Fuel Type:</label>
-                <select name="fuel_type" required>
-                    <option value="" disabled selected>Select Fuel Type</option>
-                    <option value="D">Diesel</option>
-                    <option value="E">Ethanol (E85)</option>
-                    <option value="X">Regular Gasoline</option>
-                    <option value="Z">Premium Gasoline</option>
-                </select>
+            <label for="fuel_type">Fuel Type:</label>
+            <select name="fuel_type" required>
+                <option value="" disabled selected>Select Fuel Type</option>
+                <option value="D">Diesel</option>
+                <option value="E">Ethanol (E85)</option>
+                <option value="X">Regular Gasoline</option>
+                <option value="Z">Premium Gasoline</option>
+            </select>
 
-                <input type="submit" value="Predict">
-            </form>
+            <input type="submit" value="Predict">
+        </form>
 
+        <div class="car-animation" id="car-animation">
+            <img src="../static/car.gif" alt="Car is running...">
+        </div>
+
+        <div class="result" id="result">
             {% if prediction_text %}
-                <div class="result">{{ prediction_text }}</div>
+                 {{ prediction_text }}
             {% endif %}
-
-            <div class="logout-btn">
-                <a href="/logout">Logout</a>
-            </div>
-        {% endif %}
+        </div>
     </div>
+
+    <script>
+        const form = document.getElementById('predict-form');
+        const carAnimation = document.getElementById('car-animation');
+        const result = document.getElementById('result');
+
+        form.addEventListener('submit', function (e) {
+            carAnimation.style.display = 'block';
+            result.style.display = 'none';
+
+            setTimeout(() => {
+                form.submit();  // Only submit after animation
+            }, 2500);  // 2.5 seconds animation before actual submit
+
+            e.preventDefault(); // Prevent default to delay submission
+        });
+
+        // Show result if already rendered
+        window.addEventListener('load', function () {
+            if (result.textContent.trim() !== '') {
+                result.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
-

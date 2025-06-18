@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Slide to Redirect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      background: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .clouds {
+      position: absolute;
+      width: 200%;
+      height: 100%;
+      background: url('https://i.imgur.com/5r2hO9L.png') repeat-x;
+      background-size: contain;
+      animation: moveClouds 60s linear infinite;
+      z-index: -1;
+      opacity: 0.4;
+    }
+
+    @keyframes moveClouds {
+      from { background-position: 0 0; }
+      to { background-position: -100% 0; }
+    }
+
+    .slider-container {
+      position: relative;
+      margin: auto;
+      margin-top: 40vh;
+      width: 320px;
+      height: 60px;
+      background-color: #ffffffcc;
+      border-radius: 50px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .slider-track {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f0f0;
+      border-radius: 50px;
+    }
+
+    .slider-car {
+      width: 60px;
+      height: 60px;
+      background-color: #28a745;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      color: white;
+      cursor: pointer;
+      z-index: 1;
+      transition: transform 0.1s ease;
+    }
+
+    .slider-text {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      line-height: 60px;
+      color: #555;
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .spinner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 50px;
+      animation: bounce 0.5s infinite alternate;
+      z-index: 999;
+    }
+
+    @keyframes bounce {
+      from { transform: translate(-50%, -50%) translateY(0); }
+      to { transform: translate(-50%, -50%) translateY(-10px); }
+    }
+
+    .fill-fields {
+      position: absolute;
+      left: calc(50% - 180px);
+      top: calc(40vh - 120px);
+      width: 240px;
+      height: auto;
+      background: rgba(255,255,255,0.85);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 2;
+    }
+
+    .fill-fields.show {
+      opacity: 1;
+    }
+
+    .fill-fields input {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.8);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="clouds"></div>
+
+<div class="fill-fields" id="fieldsBox">
+  <input type="text" placeholder="Engine Size" disabled>
+  <input type="text" placeholder="Cylinders" disabled>
+  <input type="text" placeholder="Transmission" disabled>
+  <input type="text" placeholder="Fuel Type" disabled>
+</div>
+
+<div class="slider-container" id="slider">
+  <div class="slider-track"></div>
+  <div class="slider-car" id="car">🚘</div>
+  <div class="slider-text">Slide to Start</div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="spinner" id="spinner">🏎️</div>
+
+<audio id="slideSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+
+<script>
+  const car = document.getElementById('car');
+  const slider = document.getElementById('slider');
+  const spinner = document.getElementById('spinner');
+  const overlay = document.getElementById('overlay');
+  const fieldsBox = document.getElementById('fieldsBox');
+  const slideSound = document.getElementById('slideSound');
+
+  let isDragging = false;
+  let startX;
+  let currentX = 0;
+
+  car.addEventListener('mousedown', startDrag);
+  car.addEventListener('touchstart', startDrag);
+
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('touchmove', drag);
+
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+
+  function startDrag(e) {
+    isDragging = true;
+    startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    fieldsBox.classList.add('show');
+  }
+
+  function drag(e) {
+    if (!isDragging) return;
+    const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    const dx = clientX - startX;
+    const containerWidth = slider.offsetWidth - car.offsetWidth;
+    currentX = Math.min(Math.max(0, dx), containerWidth);
+    car.style.left = `${currentX}px`;
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const containerWidth = slider.offsetWidth - car.offsetWidth;
+
+    if (currentX >= containerWidth - 10) {
+      slideSound.play();
+      if (navigator.vibrate) navigator.vibrate(100);
+
+      // Show car animation and overlay
+      overlay.style.display = 'block';
+      spinner.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = "/welcome";
+      }, 3000); // Simulate 3 second loading
+    } else {
+      car.style.left = `0px`;
+      currentX = 0;
+      fieldsBox.classList.remove('show');
+    }
+  }
+</script>
+
+</body>
+</html>
